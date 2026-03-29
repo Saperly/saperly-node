@@ -88,6 +88,36 @@ describe("LinesResource", () => {
     expect(lines[1].audioHandlerUrl).toBe("wss://y");
   });
 
+  it("sendSms returns an SmsMessage with camelCase fields", async () => {
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        sms: {
+          id: "SM_123",
+          from_number: "+14155550123",
+          to_number: "+14155551234",
+          message: "hello",
+          status: "sent",
+          created_at: "2026-03-29T00:00:00Z",
+        },
+      }, 201),
+    );
+
+    const sms = await client.lines.sendSms("line-1", {
+      toNumber: "+14155551234",
+      message: "hello",
+    });
+
+    expect(sms.fromNumber).toBe("+14155550123");
+    expect(sms.toNumber).toBe("+14155551234");
+    expect(sms.message).toBe("hello");
+    expect(sms.status).toBe("sent");
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/lines/line-1/sms");
+    const body = JSON.parse(options.body as string);
+    expect(body.to_number).toBe("+14155551234");
+  });
+
   it("delete returns the released Line", async () => {
     mockFetch.mockResolvedValue(
       jsonResponse({

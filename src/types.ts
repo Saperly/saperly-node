@@ -64,3 +64,12 @@ export interface ConsentCheckResult {
   status: "active" | "none";
   consent: ConsentRecord | null;
 }
+
+export interface SmsMessage {
+  id: string;
+  fromNumber: string;
+  toNumber: string;
+  message: string;
+  status: string;
+  createdAt: string;
+}

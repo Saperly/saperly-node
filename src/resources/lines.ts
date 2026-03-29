@@ -1,5 +1,5 @@
 import type { SaperlyClient } from "../client.js";
-import type { Line } from "../types.js";
+import type { Line, SmsMessage } from "../types.js";
 
 export interface CreateLineParams {
   name: string;
@@ -32,5 +32,14 @@ export class LinesResource {
   async delete(lineId: string): Promise<Line> {
     const res = await this.client.request<{ line: Line }>("DELETE", `/lines/${encodeURIComponent(lineId)}`);
     return res.line;
+  }
+
+  async sendSms(lineId: string, params: { toNumber: string; message: string }): Promise<SmsMessage> {
+    const res = await this.client.request<{ sms: SmsMessage }>(
+      "POST",
+      `/lines/${encodeURIComponent(lineId)}/sms`,
+      { body: params },
+    );
+    return res.sms;
   }
 }
