@@ -7,6 +7,7 @@ import { ConsentResource } from "./resources/consent.js";
 import { ComplianceResource } from "./resources/compliance.js";
 import { DisclosuresResource } from "./resources/disclosures.js";
 import { BillingResource } from "./resources/billing.js";
+import { WebhooksResource } from "./resources/webhooks.js";
 
 export interface SaperlyConfig {
   apiKey: string;
@@ -35,6 +36,7 @@ export class Saperly {
   readonly compliance: ComplianceResource;
   readonly disclosures: DisclosuresResource;
   readonly billing: BillingResource;
+  readonly webhooks: WebhooksResource;
 
   constructor(config: SaperlyConfig) {
     if (!config.apiKey) {
@@ -47,6 +49,7 @@ export class Saperly {
     this.compliance = new ComplianceResource(client);
     this.disclosures = new DisclosuresResource(client);
     this.billing = new BillingResource(client);
+    this.webhooks = new WebhooksResource(client);
   }
 
   /** Programmatic signup. Creates account + default test API key. */
@@ -78,3 +81,4 @@ export type { CreateCallParams, ListCallsParams } from "./resources/calls.js";
 export type { GrantConsentParams, CheckConsentParams, RevokeConsentParams } from "./resources/consent.js";
 export type { AuditParams } from "./resources/compliance.js";
 export type { CreateDisclosureParams } from "./resources/disclosures.js";
+export type { ListDeliveriesParams, WebhookStatsParams, TestWebhookParams } from "./resources/webhooks.js";

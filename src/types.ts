@@ -73,3 +73,48 @@ export interface SmsMessage {
   status: string;
   createdAt: string;
 }
+
+export interface WebhookDelivery {
+  id: string;
+  lineId: string;
+  callId: string | null;
+  eventType: string;
+  url: string;
+  status: "success" | "failed" | "pending";
+  httpStatus: number | null;
+  errorMessage: string | null;
+  attemptCount: number;
+  requestBody: unknown;
+  responseBody: string | null;
+  durationMs: number | null;
+  createdAt: string;
+}
+
+export interface WebhookStats {
+  total: number;
+  success: number;
+  failed: number;
+  successRate: number;
+  byEventType: {
+    eventType: string;
+    total: number;
+    success: number;
+    failed: number;
+  }[];
+  byHour: {
+    hour: string;
+    total: number;
+    success: number;
+    failed: number;
+  }[];
+}
+
+export interface WebhookTestResult {
+  delivery: {
+    id: string;
+    status: "success" | "failed";
+    httpStatus: number | null;
+    durationMs: number;
+    responseBody: string | null;
+  };
+}
