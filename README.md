@@ -84,6 +84,10 @@ client.billing.balance()
 
 > **Note:** The billing balance endpoint is not yet available (ships in Phase 5). Calling `billing.balance()` will throw a `NotFoundError` until then.
 
+## SMS
+
+SMS is inbound only for MVP. Your line receives incoming text messages and your webhook gets `sms_received` events. Outbound SMS coming soon.
+
 ## Error handling
 
 All API errors are mapped to typed exceptions:
