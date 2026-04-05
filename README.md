@@ -88,6 +88,10 @@ client.billing.balance()
 
 SMS is inbound only for MVP. Your line receives incoming text messages and your webhook gets `sms_received` events. Outbound SMS coming soon.
 
+## Automatic Retries
+
+GET and DELETE requests automatically retry once on 5xx errors and network failures, with a 1-second delay. POST/PUT/PATCH requests are never retried to prevent duplicate side effects.
+
 ## Error handling
 
 All API errors are mapped to typed exceptions:

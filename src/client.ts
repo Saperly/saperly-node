@@ -25,6 +25,8 @@ export class SaperlyClient {
     this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
   }
 
+  private static readonly RETRYABLE_METHODS = new Set(["GET", "DELETE", "HEAD", "OPTIONS"]);
+
   async request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
     let url = `${this.baseUrl}/api/v1${path}`;
 
@@ -50,18 +52,41 @@ export class SaperlyClient {
       fetchOptions.body = JSON.stringify(toSnakeCase(options.body as Record<string, unknown>));
     }
 
-    const res = await fetch(url, fetchOptions);
+    const isRetryable = SaperlyClient.RETRYABLE_METHODS.has(method.toUpperCase());
+    const maxAttempts = isRetryable ? 2 : 1;
+    let lastError: unknown;
 
-    if (!res.ok) {
-      const errorBody = await res.json().catch(() => null);
-      throw SaperlyError.fromResponse(res.status, errorBody);
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const res = await fetch(url, fetchOptions);
+
+        if (res.status >= 500 && isRetryable && attempt < maxAttempts) {
+          await new Promise((r) => setTimeout(r, 1000));
+          continue;
+        }
+
+        if (!res.ok) {
+          const errorBody = await res.json().catch(() => null);
+          throw SaperlyError.fromResponse(res.status, errorBody);
+        }
+
+        if (res.status === 204) {
+          return undefined as T;
+        }
+
+        const json: unknown = await res.json();
+        return toCamelCase<T>(json);
+      } catch (err) {
+        if (err instanceof SaperlyError) throw err;
+        lastError = err;
+        if (isRetryable && attempt < maxAttempts) {
+          await new Promise((r) => setTimeout(r, 1000));
+          continue;
+        }
+        throw err;
+      }
     }
 
-    if (res.status === 204) {
-      return undefined as T;
-    }
-
-    const json: unknown = await res.json();
-    return toCamelCase<T>(json);
+    throw lastError;
   }
 }
