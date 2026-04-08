@@ -60,6 +60,33 @@ export interface Balance {
   currency: string;
 }
 
+export interface Transaction {
+  id: string;
+  type:
+    | "signup_credit"
+    | "credit_purchase"
+    | "call_charge"
+    | "number_fee"
+    | "refund"
+    | "auto_recharge";
+  amountCents: number;
+  balanceAfterCents: number;
+  description: string;
+  referenceId: string | null;
+  referenceType: string | null;
+  createdAt: string;
+}
+
+export interface TransactionList {
+  transactions: Transaction[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export interface AddFundsResult {
+  checkoutUrl: string;
+}
+
 export interface ConsentCheckResult {
   status: "active" | "none";
   consent: ConsentRecord | null;

@@ -81,4 +81,5 @@ export type { CreateCallParams, ListCallsParams } from "./resources/calls.js";
 export type { GrantConsentParams, CheckConsentParams, RevokeConsentParams } from "./resources/consent.js";
 export type { AuditParams } from "./resources/compliance.js";
 export type { CreateDisclosureParams } from "./resources/disclosures.js";
+export type { AddFundsParams, ListTransactionsParams } from "./resources/billing.js";
 export type { ListDeliveriesParams, WebhookStatsParams, TestWebhookParams } from "./resources/webhooks.js";
