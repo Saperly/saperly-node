@@ -7,6 +7,26 @@ export interface CreateLineParams {
   webhookUrl?: string;
   audioHandlerUrl?: string;
   statusCallbackUrl?: string;
+  systemPrompt?: string;
+  beginMessage?: string;
+  voice?: string;
+  contextLimit?: number;
+  recordingEnabled?: boolean;
+  complianceEnabled?: boolean;
+}
+
+export interface UpdateLineParams {
+  name?: string;
+  mode?: "text" | "audio";
+  webhookUrl?: string | null;
+  audioHandlerUrl?: string | null;
+  statusCallbackUrl?: string | null;
+  systemPrompt?: string | null;
+  beginMessage?: string | null;
+  voice?: string | null;
+  contextLimit?: number | null;
+  recordingEnabled?: boolean;
+  complianceEnabled?: boolean;
 }
 
 export class LinesResource {
@@ -31,6 +51,13 @@ export class LinesResource {
 
   async delete(lineId: string): Promise<Line> {
     const res = await this.client.request<{ line: Line }>("DELETE", `/lines/${encodeURIComponent(lineId)}`);
+    return res.line;
+  }
+
+  async update(lineId: string, params: UpdateLineParams): Promise<Line> {
+    const res = await this.client.request<{ line: Line }>("PATCH", `/lines/${encodeURIComponent(lineId)}`, {
+      body: params,
+    });
     return res.line;
   }
 

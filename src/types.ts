@@ -7,6 +7,12 @@ export interface Line {
   audioHandlerUrl: string | null;
   webhookUrl: string | null;
   statusCallbackUrl: string | null;
+  systemPrompt: string | null;
+  beginMessage: string | null;
+  voice: string | null;
+  contextLimit: number | null;
+  recordingEnabled: boolean;
+  complianceEnabled: boolean;
   status: "provisioning" | "active" | "suspended" | "released";
   environment: "live" | "test";
   createdAt: string;
@@ -22,6 +28,10 @@ export interface Call {
   durationSec: number | null;
   startedAt: string | null;
   endedAt: string | null;
+  recordingUrl: string | null;
+  transcript: Array<{ role: string; text: string; timestamp: string }> | null;
+  systemPrompt: string | null;
+  beginMessage: string | null;
   createdAt: string;
 }
 
@@ -144,4 +154,71 @@ export interface WebhookTestResult {
     durationMs: number;
     responseBody: string | null;
   };
+}
+
+export interface Message {
+  id: string;
+  lineId: string;
+  to: string;
+  text: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface Conversation {
+  lineId: string;
+  phoneNumber: string;
+  linePhoneNumber: string;
+  messageCount: number;
+  lastMessageAt: string;
+  lastMessageText: string | null;
+  lastMessageDirection: "inbound" | "outbound";
+}
+
+export interface ConversationList {
+  conversations: Conversation[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export interface ConversationMessage {
+  direction: "inbound" | "outbound";
+  text: string;
+  timestamp: string;
+}
+
+export interface ConversationMessages {
+  messages: ConversationMessage[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export interface DailyUsage {
+  date: string;
+  calls: number;
+  minutes: number;
+  smsInbound: number;
+  smsOutbound: number;
+  costCents: number;
+}
+
+export interface MonthlyUsage {
+  month: string;
+  calls: number;
+  minutes: number;
+  smsInbound: number;
+  smsOutbound: number;
+  costCents: number;
+}
+
+export interface Settings {
+  defaultWebhookUrl: string | null;
+}
+
+export interface Voice {
+  id: string;
+  name: string;
+  gender: string;
+  accent: string;
+  style: string;
 }

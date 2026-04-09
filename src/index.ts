@@ -8,6 +8,11 @@ import { ComplianceResource } from "./resources/compliance.js";
 import { DisclosuresResource } from "./resources/disclosures.js";
 import { BillingResource } from "./resources/billing.js";
 import { WebhooksResource } from "./resources/webhooks.js";
+import { MessagesResource } from "./resources/messages.js";
+import { ConversationsResource } from "./resources/conversations.js";
+import { UsageResource } from "./resources/usage.js";
+import { SettingsResource } from "./resources/settings.js";
+import { VoicesResource } from "./resources/voices.js";
 
 export interface SaperlyConfig {
   apiKey: string;
@@ -37,6 +42,11 @@ export class Saperly {
   readonly disclosures: DisclosuresResource;
   readonly billing: BillingResource;
   readonly webhooks: WebhooksResource;
+  readonly messages: MessagesResource;
+  readonly conversations: ConversationsResource;
+  readonly usage: UsageResource;
+  readonly settings: SettingsResource;
+  readonly voices: VoicesResource;
 
   constructor(config: SaperlyConfig) {
     if (!config.apiKey) {
@@ -50,6 +60,11 @@ export class Saperly {
     this.disclosures = new DisclosuresResource(client);
     this.billing = new BillingResource(client);
     this.webhooks = new WebhooksResource(client);
+    this.messages = new MessagesResource(client);
+    this.conversations = new ConversationsResource(client);
+    this.usage = new UsageResource(client);
+    this.settings = new SettingsResource(client);
+    this.voices = new VoicesResource(client);
   }
 
   /** Programmatic signup. Creates account + default test API key. */
@@ -76,10 +91,14 @@ export class Saperly {
 
 export * from "./types.js";
 export * from "./errors.js";
-export type { CreateLineParams } from "./resources/lines.js";
-export type { CreateCallParams, ListCallsParams } from "./resources/calls.js";
+export type { CreateLineParams, UpdateLineParams } from "./resources/lines.js";
+export type { CreateCallParams, ListCallsParams, ConversationCallParams } from "./resources/calls.js";
 export type { GrantConsentParams, CheckConsentParams, RevokeConsentParams } from "./resources/consent.js";
 export type { AuditParams } from "./resources/compliance.js";
 export type { CreateDisclosureParams } from "./resources/disclosures.js";
 export type { AddFundsParams, ListTransactionsParams } from "./resources/billing.js";
 export type { ListDeliveriesParams, WebhookStatsParams, TestWebhookParams } from "./resources/webhooks.js";
+export type { SendMessageParams } from "./resources/messages.js";
+export type { ListConversationsParams, GetConversationMessagesParams } from "./resources/conversations.js";
+export type { DailyUsageParams, MonthlyUsageParams } from "./resources/usage.js";
+export type { UpdateSettingsParams } from "./resources/settings.js";

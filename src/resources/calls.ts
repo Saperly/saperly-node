@@ -13,6 +13,14 @@ export interface ListCallsParams {
   offset?: number;
 }
 
+export interface ConversationCallParams {
+  lineId: string;
+  toNumber: string;
+  topic: string;
+  beginMessage?: string;
+  maxDurationSeconds?: number;
+}
+
 export class CallsResource {
   constructor(private client: SaperlyClient) {}
 
@@ -41,6 +49,13 @@ export class CallsResource {
 
   async hangup(callId: string): Promise<Call> {
     const res = await this.client.request<{ call: Call }>("POST", `/calls/${encodeURIComponent(callId)}/hangup`);
+    return res.call;
+  }
+
+  async conversation(params: ConversationCallParams): Promise<Call> {
+    const res = await this.client.request<{ call: Call }>("POST", "/calls/conversation", {
+      body: params,
+    });
     return res.call;
   }
 }
