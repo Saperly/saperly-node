@@ -66,7 +66,7 @@ export interface Disclosure {
 }
 
 export interface Balance {
-  balanceCents: number;
+  credits: number;
   currency: string;
 }
 
@@ -79,8 +79,8 @@ export interface Transaction {
     | "number_fee"
     | "refund"
     | "auto_recharge";
-  amountCents: number;
-  balanceAfterCents: number;
+  amountCredits: number;
+  balanceAfterCredits: number;
   description: string;
   referenceId: string | null;
   referenceType: string | null;
@@ -199,7 +199,7 @@ export interface DailyUsage {
   minutes: number;
   smsInbound: number;
   smsOutbound: number;
-  costCents: number;
+  costCredits: number;
 }
 
 export interface MonthlyUsage {
@@ -208,7 +208,7 @@ export interface MonthlyUsage {
   minutes: number;
   smsInbound: number;
   smsOutbound: number;
-  costCents: number;
+  costCredits: number;
 }
 
 export interface Settings {

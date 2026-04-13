@@ -2,7 +2,7 @@ import type { SaperlyClient } from "../client.js";
 import type { Balance, TransactionList, AddFundsResult } from "../types.js";
 
 export interface AddFundsParams {
-  amountCents: 1000 | 2500 | 5000 | 10000;
+  amountCredits: 1000 | 2500 | 5000 | 10000;
 }
 
 export interface ListTransactionsParams {

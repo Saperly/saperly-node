@@ -21,11 +21,11 @@ describe("BillingResource", () => {
 
   it("balance returns camelCase fields", async () => {
     mockFetch.mockResolvedValue(
-      jsonResponse({ balance_cents: 500, currency: "usd" }),
+      jsonResponse({ credits: 500, currency: "credits" }),
     );
     const balance = await client.billing.balance();
-    expect(balance.balanceCents).toBe(500);
-    expect(balance.currency).toBe("usd");
+    expect(balance.credits).toBe(500);
+    expect(balance.currency).toBe("credits");
   });
 
   it("addFunds sends snake_case body and returns checkoutUrl", async () => {
@@ -35,7 +35,7 @@ describe("BillingResource", () => {
         201,
       ),
     );
-    const result = await client.billing.addFunds({ amountCents: 2500 });
+    const result = await client.billing.addFunds({ amountCredits: 2500 });
     expect(result.checkoutUrl).toBe(
       "https://checkout.lemonsqueezy.com/pay/abc123",
     );
@@ -43,7 +43,7 @@ describe("BillingResource", () => {
     // Verify snake_case body was sent
     const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(init.body as string);
-    expect(body.amount_cents).toBe(2500);
+    expect(body.amount_credits).toBe(2500);
   });
 
   it("transactions returns paginated list with camelCase fields", async () => {
@@ -53,8 +53,8 @@ describe("BillingResource", () => {
           {
             id: "txn-1",
             type: "signup_credit",
-            amount_cents: 500,
-            balance_after_cents: 500,
+            amount_credits: 500,
+            balance_after_credits: 500,
             description: "Signup credit",
             reference_id: null,
             reference_type: null,
@@ -66,8 +66,8 @@ describe("BillingResource", () => {
       }),
     );
     const result = await client.billing.transactions({ limit: 10 });
-    expect(result.transactions[0].amountCents).toBe(500);
-    expect(result.transactions[0].balanceAfterCents).toBe(500);
+    expect(result.transactions[0].amountCredits).toBe(500);
+    expect(result.transactions[0].balanceAfterCredits).toBe(500);
     expect(result.transactions[0].type).toBe("signup_credit");
     expect(result.hasMore).toBe(true);
     expect(result.nextCursor).toBe("2026-01-01T00:00:00Z");

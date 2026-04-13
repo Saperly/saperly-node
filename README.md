@@ -1,5 +1,7 @@
 # @saperly/sdk
 
+> **Published at [github.com/Saperly/saperly-node](https://github.com/Saperly/saperly-node).** This copy in the monorepo is the development source.
+
 Typed TypeScript client for the [Saperly](https://saperly.com) API. Give any AI agent a phone number with compliance built in.
 
 ## Install

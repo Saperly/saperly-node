@@ -29,7 +29,7 @@ describe("UsageResource", () => {
             minutes: 45,
             sms_inbound: 3,
             sms_outbound: 7,
-            cost_cents: 495,
+            cost_credits: 495,
           },
           {
             date: "2026-04-09",
@@ -37,7 +37,7 @@ describe("UsageResource", () => {
             minutes: 30,
             sms_inbound: 1,
             sms_outbound: 4,
-            cost_cents: 330,
+            cost_credits: 330,
           },
         ],
       }),
@@ -50,7 +50,7 @@ describe("UsageResource", () => {
     expect(result.daily[0].calls).toBe(12);
     expect(result.daily[0].smsInbound).toBe(3);
     expect(result.daily[0].smsOutbound).toBe(7);
-    expect(result.daily[0].costCents).toBe(495);
+    expect(result.daily[0].costCredits).toBe(495);
   });
 
   it("daily passes days query param", async () => {
@@ -82,7 +82,7 @@ describe("UsageResource", () => {
             minutes: 1200,
             sms_inbound: 45,
             sms_outbound: 120,
-            cost_cents: 13200,
+            cost_credits: 13200,
           },
         ],
       }),
@@ -96,7 +96,7 @@ describe("UsageResource", () => {
     expect(result.monthly[0].minutes).toBe(1200);
     expect(result.monthly[0].smsInbound).toBe(45);
     expect(result.monthly[0].smsOutbound).toBe(120);
-    expect(result.monthly[0].costCents).toBe(13200);
+    expect(result.monthly[0].costCredits).toBe(13200);
   });
 
   it("monthly passes months query param", async () => {
