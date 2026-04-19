@@ -19,7 +19,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 describe("LinesResource", () => {
   const client = new Saperly({ apiKey: "sk_test_abc123" });
 
-  it("create returns a Line with camelCase fields", async () => {
+  it("create returns a Line with camelCase fields (normalizes legacy text mode to webhook)", async () => {
     mockFetch.mockResolvedValue(
       jsonResponse(
         {
@@ -43,7 +43,7 @@ describe("LinesResource", () => {
 
     const line = await client.lines.create({
       name: "support",
-      mode: "text",
+      mode: "webhook",
       webhookUrl: "https://example.com/hook",
     });
 
@@ -51,6 +51,8 @@ describe("LinesResource", () => {
     expect(line.webhookUrl).toBe("https://example.com/hook");
     expect(line.createdAt).toBe("2026-01-01T00:00:00Z");
     expect(line.displayName).toBeNull();
+    // Regression: legacy DB rows with mode="text" should be normalized to "webhook"
+    expect(line.mode).toBe("webhook");
   });
 
   it("create sends snake_case body to API", async () => {
@@ -76,7 +78,7 @@ describe("LinesResource", () => {
     mockFetch.mockResolvedValue(
       jsonResponse({
         lines: [
-          { id: "l1", phone_number: "+1", display_name: null, name: "a", mode: "text", audio_handler_url: null, webhook_url: "https://x", status_callback_url: null, status: "active", environment: "test", created_at: "2026-01-01" },
+          { id: "l1", phone_number: "+1", display_name: null, name: "a", mode: "webhook", audio_handler_url: null, webhook_url: "https://x", status_callback_url: null, status: "active", environment: "test", created_at: "2026-01-01" },
           { id: "l2", phone_number: "+2", display_name: null, name: "b", mode: "audio", audio_handler_url: "wss://y", webhook_url: null, status_callback_url: null, status: "active", environment: "live", created_at: "2026-01-02" },
         ],
       }),
@@ -121,7 +123,7 @@ describe("LinesResource", () => {
   it("delete returns the released Line", async () => {
     mockFetch.mockResolvedValue(
       jsonResponse({
-        line: { id: "l1", phone_number: "+1", display_name: null, name: "a", mode: "text", audio_handler_url: null, webhook_url: "https://x", status_callback_url: null, status: "released", environment: "test", created_at: "2026-01-01" },
+        line: { id: "l1", phone_number: "+1", display_name: null, name: "a", mode: "webhook", audio_handler_url: null, webhook_url: "https://x", status_callback_url: null, status: "released", environment: "test", created_at: "2026-01-01" },
       }),
     );
 

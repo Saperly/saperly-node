@@ -43,7 +43,7 @@ describe("retry logic", () => {
     mockFetch.mockResolvedValueOnce(errorResponse(500));
 
     await expect(
-      client.lines.create({ name: "test", mode: "text" }),
+      client.lines.create({ name: "test", mode: "webhook" }),
     ).rejects.toThrow(SaperlyError);
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -73,7 +73,7 @@ describe("retry logic", () => {
   it("DELETE 502 then 200 — retries and succeeds", async () => {
     mockFetch
       .mockResolvedValueOnce(errorResponse(502))
-      .mockResolvedValueOnce(jsonResponse({ line: { id: "line-1", phone_number: "+1" } }));
+      .mockResolvedValueOnce(jsonResponse({ line: { id: "line-1", phone_number: "+1", mode: "webhook" } }));
 
     const result = await client.lines.delete("line-1");
 

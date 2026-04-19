@@ -3,7 +3,7 @@ export interface Line {
   phoneNumber: string;
   displayName: string | null;
   name: string;
-  mode: "text" | "audio";
+  mode: "webhook" | "audio" | "hosted" | (string & {});
   audioHandlerUrl: string | null;
   webhookUrl: string | null;
   statusCallbackUrl: string | null;
