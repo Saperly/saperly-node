@@ -91,6 +91,8 @@ export class Saperly {
 
 export * from "./types.js";
 export * from "./errors.js";
+export { verifyWebhook } from "./webhooks-verify.js";
+export type { WebhookHeaders, VerifyOptions, VerifyResult } from "./webhooks-verify.js";
 export type { CreateLineParams, UpdateLineParams } from "./resources/lines.js";
 export type { CreateCallParams, ListCallsParams, ConversationCallParams } from "./resources/calls.js";
 export type { GrantConsentParams, CheckConsentParams, RevokeConsentParams } from "./resources/consent.js";
