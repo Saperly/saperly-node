@@ -143,6 +143,35 @@ const client = new Saperly({
 });
 ```
 
+## Verifying webhooks
+
+Every Saperly webhook is signed. `verifyWebhook(rawBody, secret, headers)` returns `{ valid, reason? }`.
+
+```typescript
+import express from "express";
+import { verifyWebhook } from "@saperly/sdk";
+
+const app = express();
+app.use(express.raw({ type: "application/json" }));
+
+app.post("/saperly-webhook", async (req, res) => {
+  const rawBody = req.body.toString("utf8");
+  const { line_id } = JSON.parse(rawBody);
+  const secret = await lookupSecretForLine(line_id); // your secret store
+  const result = verifyWebhook(rawBody, secret, req.headers);
+  if (!result.valid) return res.status(401).json({ error: result.reason });
+
+  const event = JSON.parse(rawBody);
+  // ... trusted, handle the event
+});
+```
+
+The helper enforces the 5-minute clock-skew window and uses constant-time compare. You still need to cache `x-saperly-delivery-id` for 5 minutes and reject duplicates yourself — that cache is receiver-side state.
+
+`verifyWebhook` is a thin wrapper over [`@saperly/webhook-sig`](https://www.npmjs.com/package/@saperly/webhook-sig). Advanced integrators can import `sign`, `verify`, `computeSignature`, or `formatSignature` from that package directly.
+
+Migrating from an earlier version? See [v0.3.0.0 migration guide](https://saperly.com/docs/migrations/v0.3.0.0).
+
 ## License
 
 MIT
