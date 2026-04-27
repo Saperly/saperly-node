@@ -31,13 +31,13 @@ describe("BillingResource", () => {
   it("addFunds sends snake_case body and returns checkoutUrl", async () => {
     mockFetch.mockResolvedValue(
       jsonResponse(
-        { checkout_url: "https://checkout.lemonsqueezy.com/pay/abc123" },
+        { checkout_url: "https://checkout.stripe.com/pay/abc123" },
         201,
       ),
     );
     const result = await client.billing.addFunds({ amountCredits: 2500 });
     expect(result.checkoutUrl).toBe(
-      "https://checkout.lemonsqueezy.com/pay/abc123",
+      "https://checkout.stripe.com/pay/abc123",
     );
 
     // Verify snake_case body was sent
