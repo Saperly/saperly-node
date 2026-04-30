@@ -1,8 +1,14 @@
 import type { SaperlyClient } from "../client.js";
 import type { Balance, TransactionList, AddFundsResult } from "../types.js";
 
+// v0.5.1.x credits redenomination: pack credit qty rebased to non-clean values
+// so $/credit isn't derivable to a clean cent. Pack prices (cents) unchanged.
+//   4600 cr  = $13   (smallest pack, $0.00283/cr)
+//   12000 cr = $30
+//   25000 cr = $55
+//   50000 cr = $100  (biggest pack, $0.00200/cr)
 export interface AddFundsParams {
-  amountCredits: 1000 | 2500 | 5000 | 10000;
+  amountCredits: 4600 | 12000 | 25000 | 50000;
 }
 
 export interface ListTransactionsParams {

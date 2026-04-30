@@ -35,7 +35,7 @@ describe("BillingResource", () => {
         201,
       ),
     );
-    const result = await client.billing.addFunds({ amountCredits: 2500 });
+    const result = await client.billing.addFunds({ amountCredits: 12000 });
     expect(result.checkoutUrl).toBe(
       "https://checkout.stripe.com/pay/abc123",
     );
@@ -43,7 +43,7 @@ describe("BillingResource", () => {
     // Verify snake_case body was sent
     const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(init.body as string);
-    expect(body.amount_credits).toBe(2500);
+    expect(body.amount_credits).toBe(12000);
   });
 
   it("transactions returns paginated list with camelCase fields", async () => {

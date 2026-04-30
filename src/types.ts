@@ -78,7 +78,11 @@ export interface Transaction {
     | "call_charge"
     | "number_fee"
     | "refund"
-    | "auto_recharge";
+    | "auto_recharge"
+    | "sms_charge"
+    | "postpaid_flush"
+    // v0.5.1.x: Build subscription cycle credit grant via invoice.paid.
+    | "tier_grant";
   amountCredits: number;
   balanceAfterCredits: number;
   description: string;
