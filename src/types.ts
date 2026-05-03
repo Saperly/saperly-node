@@ -66,8 +66,17 @@ export interface Disclosure {
 }
 
 export interface Balance {
+  /**
+   * Account balance. v0.5.3 cents-honest: this is a cents amount despite the
+   * historical field name. Column rename to `cents` is planned for v0.6.x.
+   */
   credits: number;
-  currency: string;
+  /**
+   * Currency code. Servers ≥ v0.5.3 return "USD"; older servers (v0.5.2.x and
+   * before) returned the literal "credits" — kept in the union for graceful
+   * forward-compat. Treat any non-"USD" value as legacy.
+   */
+  currency: "USD" | "credits" | (string & {});
 }
 
 export interface Transaction {

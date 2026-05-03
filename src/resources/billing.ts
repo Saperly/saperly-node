@@ -29,11 +29,21 @@ export class BillingResource {
     return this.client.request<Balance>("GET", "/billing/balance");
   }
 
-  /** Create a checkout session to add funds. Returns a checkout URL. */
+  /**
+   * @deprecated Removed in v0.5.2.0. Saperly is now postpaid — your saved card
+   * on file is auto-charged when balance runs low. Manage payment methods at
+   * https://app.saperly.com/billing
+   *
+   * The method signature is preserved for backward type-compat; calling it at
+   * runtime throws immediately with a migration breadcrumb. The `params`
+   * argument is intentionally accepted (to keep the typed call-site shape
+   * stable) but never read.
+   */
   async addFunds(params: AddFundsParams): Promise<AddFundsResult> {
-    return this.client.request<AddFundsResult>("POST", "/billing/add-funds", {
-      body: params,
-    });
+    void params;
+    throw new Error(
+      "client.billing.addFunds() was removed in v0.5.2.0. Saperly is now postpaid — your saved card on file is auto-charged when balance runs low. Manage payment methods at https://app.saperly.com/billing",
+    );
   }
 
   /** List billing transactions with optional pagination. */

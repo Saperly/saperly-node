@@ -19,31 +19,21 @@ function jsonResponse(body: unknown, status = 200): Response {
 describe("BillingResource", () => {
   const client = new Saperly({ apiKey: "sk_test_abc123" });
 
-  it("balance returns camelCase fields", async () => {
+  it("balance returns camelCase fields with v0.5.3 USD currency", async () => {
     mockFetch.mockResolvedValue(
-      jsonResponse({ credits: 500, currency: "credits" }),
+      jsonResponse({ credits: 500, currency: "USD" }),
     );
     const balance = await client.billing.balance();
     expect(balance.credits).toBe(500);
-    expect(balance.currency).toBe("credits");
+    expect(balance.currency).toBe("USD");
   });
 
-  it("addFunds sends snake_case body and returns checkoutUrl", async () => {
-    mockFetch.mockResolvedValue(
-      jsonResponse(
-        { checkout_url: "https://checkout.stripe.com/pay/abc123" },
-        201,
-      ),
-    );
-    const result = await client.billing.addFunds({ amountCredits: 12000 });
-    expect(result.checkoutUrl).toBe(
-      "https://checkout.stripe.com/pay/abc123",
-    );
-
-    // Verify snake_case body was sent
-    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
-    const body = JSON.parse(init.body as string);
-    expect(body.amount_credits).toBe(12000);
+  it("addFunds throws deprecation error (removed in v0.5.2.0, postpaid pivot)", async () => {
+    await expect(
+      client.billing.addFunds({ amountCredits: 12000 }),
+    ).rejects.toThrow(/removed in v0\.5\.2\.0/);
+    // Method must NOT hit the network — the breadcrumb fires before any fetch.
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
   it("transactions returns paginated list with camelCase fields", async () => {
