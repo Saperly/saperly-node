@@ -67,10 +67,18 @@ export interface Disclosure {
 
 export interface Balance {
   /**
-   * Account balance. v0.5.3 cents-honest: this is a cents amount despite the
-   * historical field name. Column rename to `cents` is planned for v0.6.x.
+   * Account balance in US cents. v0.5.3 cents-honest pivot: this is a cents
+   * amount despite the historical field name (e.g. `500` = $5.00). Field
+   * rename to `cents` is planned for v0.6.x; until then prefer reading
+   * `cents` (added v0.5.3) on new client code.
    */
   credits: number;
+  /**
+   * Account balance in US cents (added v0.5.3 as the v1.0-stable name).
+   * Equal to `credits` on servers ≥ v0.5.3; absent on older servers, in
+   * which case fall back to `credits`. Use this field for new code.
+   */
+  cents?: number;
   /**
    * Currency code. Servers ≥ v0.5.3 return "USD"; older servers (v0.5.2.x and
    * before) returned the literal "credits" — kept in the union for graceful
@@ -92,7 +100,18 @@ export interface Transaction {
     | "postpaid_flush"
     // v0.5.1.x: Build subscription cycle credit grant via invoice.paid.
     | "tier_grant";
+  /**
+   * Transaction amount in US cents (positive for credits, negative for
+   * debits). v0.5.3 cents-honest: the field name still reads "Credits" for
+   * backward-compat with v0.5.1.x clients; rename to `amountCents` is
+   * planned for v0.6.x. To display as dollars: `(amountCredits / 100).toFixed(2)`.
+   */
   amountCredits: number;
+  /**
+   * Account balance after this transaction, in US cents. Same v0.5.3
+   * cents-honest semantics as `amountCredits`; rename to `balanceAfterCents`
+   * deferred to v0.6.x.
+   */
   balanceAfterCredits: number;
   description: string;
   referenceId: string | null;

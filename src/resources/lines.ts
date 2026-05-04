@@ -75,6 +75,16 @@ export class LinesResource {
     return normalizeLine(res.line);
   }
 
+  /**
+   * Update a line. Only fields you pass are changed, with one exception:
+   * switching `mode` to `"audio"` while `webhookUrl` is currently set
+   * implicitly clears `webhookUrl` to null on the server (so the SMS
+   * webhook route doesn't keep delivering to a URL the line no longer
+   * uses). To preserve `webhookUrl` across an audio-mode switch, pass it
+   * explicitly in the same call:
+   *
+   *     await client.lines.update(id, { mode: "audio", webhookUrl: "..." });
+   */
   async update(lineId: string, params: UpdateLineParams): Promise<Line> {
     const res = await this.client.request<{ line: Line }>("PATCH", `/lines/${encodeURIComponent(lineId)}`, {
       body: params,
