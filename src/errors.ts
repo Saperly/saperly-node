@@ -43,6 +43,8 @@ export class SaperlyError extends Error {
         return new CallNotActiveError(message, status);
       case "insufficient_credits":
         return new InsufficientCreditsError(message, status);
+      case "payment_method_required":
+        return new PaymentMethodRequiredError(message, status);
       case "number_opted_out":
         return new NumberOptedOutError(message, status);
       case "email_taken":
@@ -113,6 +115,21 @@ export class InsufficientCreditsError extends SaperlyError {
   constructor(message: string, status = 402) {
     super("insufficient_credits", status, message);
     this.name = "InsufficientCreditsError";
+  }
+}
+
+/**
+ * Thrown when POST /v1/lines is called by a user who has previously
+ * provisioned a line (`firstLineProvisionedAt != null`) but has no default
+ * payment method on file. The first-ever line is frictionless; line #2+
+ * requires a card. Add a payment method in the Saperly portal at
+ * https://saperly.com/billing#payment-method, then retry with a NEW
+ * Idempotency-Key (the original 402 is sticky-cached for ~12h).
+ */
+export class PaymentMethodRequiredError extends SaperlyError {
+  constructor(message: string, status = 402) {
+    super("payment_method_required", status, message);
+    this.name = "PaymentMethodRequiredError";
   }
 }
 

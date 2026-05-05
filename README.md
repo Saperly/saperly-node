@@ -118,7 +118,7 @@ try {
 }
 ```
 
-Error classes: `ValidationError`, `AuthenticationError`, `ForbiddenError`, `NotFoundError`, `ConsentRequiredError`, `ConsentAlreadyGrantedError`, `CallInProgressError`, `CallNotActiveError`, `InsufficientCreditsError`, `NumberOptedOutError`, `EmailTakenError`.
+Error classes: `ValidationError`, `AuthenticationError`, `ForbiddenError`, `NotFoundError`, `ConsentRequiredError`, `ConsentAlreadyGrantedError`, `CallInProgressError`, `CallNotActiveError`, `InsufficientCreditsError`, `PaymentMethodRequiredError`, `NumberOptedOutError`, `EmailTakenError`.
 
 ## Programmatic signup
 
