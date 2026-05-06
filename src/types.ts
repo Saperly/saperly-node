@@ -99,7 +99,11 @@ export interface Transaction {
     | "sms_charge"
     | "postpaid_flush"
     // v0.5.1.x: Build subscription cycle credit grant via invoice.paid.
-    | "tier_grant";
+    | "tier_grant"
+    // v0.5.4: number-fee Stripe top-up. Cron charges saved card to keep
+    // monthly numbers active when balance < total fees due. Renders to
+    // customer as "Auto-charge" with positive sign in the portal ledger.
+    | "number_fee_topup";
   /**
    * Transaction amount in US cents (positive for credits, negative for
    * debits). v0.5.3 cents-honest: the field name still reads "Credits" for
