@@ -88,7 +88,7 @@ client.billing.balance()
 
 ## SMS
 
-SMS is inbound only for MVP. Your line receives incoming text messages and your webhook gets `sms_received` events. Outbound SMS coming soon.
+SMS supports both inbound (your line receives incoming text messages and your webhook gets `sms_received` events) AND outbound via `client.messages.send()`. Outbound SMS requires either an inbound from the recipient within the last 24 hours OR an active `explicit_outbound` consent record on file for that (line, recipient) pair (recorded via `POST /v1/consent` or a documented web-form opt-in).
 
 ## Automatic Retries
 
