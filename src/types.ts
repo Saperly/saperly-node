@@ -258,3 +258,52 @@ export interface Voice {
   accent: string;
   style: string;
 }
+
+/**
+ * v0.5.6.0 (M4) — discriminator for `AuditEvent.type`. Matches the
+ * server's `audit-types.ts` union exactly. The string value is
+ * pass-through (no case transform) because it has no underscore;
+ * verified by the resource tests.
+ */
+export type AuditEventType =
+  | "call"
+  | "sms"
+  | "compliance_event"
+  | "billing_transaction";
+
+/**
+ * v0.5.6.0 (M4) — one row in the unified agent-audit feed. The server
+ * UNIONs across `calls`, `sms_messages`, `compliance_events`, and
+ * `billing_transactions`, filtered by `api_key_id` (compliance branch
+ * uses `actor_api_key_id`).
+ */
+export interface AuditEvent {
+  type: AuditEventType;
+  id: string;
+  /**
+   * ISO 8601 string. The wire format is `created_at` (snake_case) and
+   * `client.request`'s `toCamelCase` converter renames it to
+   * `createdAt` on the way in.
+   */
+  createdAt: string;
+  /**
+   * Per-type payload. The wire format is snake_case throughout
+   * (`from_number`, `duration_sec`, …) and `toCamelCase` recurses into
+   * the JSONB body, so SDK consumers see `fromNumber`, `durationSec`,
+   * etc. Concrete shape varies by `type`; kept as
+   * `Record<string, unknown>` at the SDK boundary so consumers can
+   * narrow as they need. See M4 v2 for typed per-type payloads.
+   */
+  data: Record<string, unknown>;
+}
+
+/**
+ * v0.5.6.0 (M4) — return shape of `client.audit.list(...)`. The
+ * server's wire format is `{ events, limit, api_key_id }`;
+ * `toCamelCase` renames the top-level `api_key_id` to `apiKeyId`.
+ */
+export interface AuditListResult {
+  events: AuditEvent[];
+  limit: number;
+  apiKeyId: string;
+}

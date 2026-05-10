@@ -49,6 +49,14 @@ export class SaperlyError extends Error {
         return new NumberOptedOutError(message, status);
       case "email_taken":
         return new EmailTakenError(message, status);
+      case "agent_scope_error":
+        return new AgentScopeError(message, status, details);
+      case "agent_cap_exceeded":
+        return new AgentCapExceededError(message, status, details);
+      case "agent_permission_denied":
+        return new AgentPermissionDeniedError(message, status, details);
+      case "m3_fraud_block":
+        return new M3FraudBlockError(message, status);
       default:
         return new SaperlyError(code, status, message, details);
     }
@@ -144,5 +152,66 @@ export class EmailTakenError extends SaperlyError {
   constructor(message: string, status = 409) {
     super("email_taken", status, message);
     this.name = "EmailTakenError";
+  }
+}
+
+/**
+ * v0.5.6.0 (M1 PR1) — agent attempted to reach a resource outside its
+ * line scope. Line-scoped api keys (`apiKeys.lineId != null`) may only
+ * interact with their bound `line_id`; cross-line reads/writes are
+ * rejected by the server. Server emits `line_id` in `details` so the
+ * caller can surface "this key is scoped to line X — use that line
+ * or a non-scoped key" without parsing the message.
+ */
+export class AgentScopeError extends SaperlyError {
+  constructor(message: string, status = 403, details: SaperlyErrorDetail[] = []) {
+    super("agent_scope_error", status, message, details);
+    this.name = "AgentScopeError";
+  }
+}
+
+/**
+ * v0.5.6.0 (M1 PR1) — agent's `monthly_cap_cents` reached for the
+ * current billing cycle. Server emits structured details:
+ * `spent_cents`, `cap_cents`, `cycle_reset_at`. Programmatic callers
+ * can render "you've used $X of $Y; resets in N days" without parsing
+ * the message. Returns 402 — same family as `insufficient_credits` and
+ * `payment_method_required` so error handling can collapse to the
+ * "fund or raise cap" UX branch.
+ */
+export class AgentCapExceededError extends SaperlyError {
+  constructor(message: string, status = 402, details: SaperlyErrorDetail[] = []) {
+    super("agent_cap_exceeded", status, message, details);
+    this.name = "AgentCapExceededError";
+  }
+}
+
+/**
+ * v0.5.6.0 (M1 PR1) — agent's `permissions` tier does not include the
+ * verb required for this endpoint. Tiers: `read_only` → `read`;
+ * `call_only` → `read+call`; `sms_only` → `read+sms`;
+ * `full`/`legacy_full` → all. Server emits `tier` and `verb` in
+ * `details` so the caller can surface "this key is `read_only` and
+ * cannot call — rotate to a `call_only` or `full` key" without parsing
+ * the message.
+ */
+export class AgentPermissionDeniedError extends SaperlyError {
+  constructor(message: string, status = 403, details: SaperlyErrorDetail[] = []) {
+    super("agent_permission_denied", status, message, details);
+    this.name = "AgentPermissionDeniedError";
+  }
+}
+
+/**
+ * v0.5.6.0 (M3) — request blocked by fraud heuristics. Server emits no
+ * structured details by design — fraud copy is deliberately vague to
+ * avoid giving abusers signal about which heuristic tripped. Treat as
+ * terminal for the current request; do not auto-retry. If the agent
+ * believes the block is wrong, escalate to a human operator.
+ */
+export class M3FraudBlockError extends SaperlyError {
+  constructor(message: string, status = 403) {
+    super("m3_fraud_block", status, message);
+    this.name = "M3FraudBlockError";
   }
 }

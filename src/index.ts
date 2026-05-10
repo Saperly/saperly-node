@@ -13,6 +13,7 @@ import { ConversationsResource } from "./resources/conversations.js";
 import { UsageResource } from "./resources/usage.js";
 import { SettingsResource } from "./resources/settings.js";
 import { VoicesResource } from "./resources/voices.js";
+import { AuditResource } from "./resources/audit.js";
 
 export interface SaperlyConfig {
   apiKey: string;
@@ -47,6 +48,7 @@ export class Saperly {
   readonly usage: UsageResource;
   readonly settings: SettingsResource;
   readonly voices: VoicesResource;
+  readonly audit: AuditResource;
 
   constructor(config: SaperlyConfig) {
     if (!config.apiKey) {
@@ -65,6 +67,7 @@ export class Saperly {
     this.usage = new UsageResource(client);
     this.settings = new SettingsResource(client);
     this.voices = new VoicesResource(client);
+    this.audit = new AuditResource(client);
   }
 
   /** Programmatic signup. Creates account + default test API key. */
@@ -104,3 +107,4 @@ export type { SendMessageParams } from "./resources/messages.js";
 export type { ListConversationsParams, GetConversationMessagesParams } from "./resources/conversations.js";
 export type { DailyUsageParams, MonthlyUsageParams } from "./resources/usage.js";
 export type { UpdateSettingsParams } from "./resources/settings.js";
+export type { ListAuditParams } from "./resources/audit.js";
