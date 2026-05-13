@@ -11,6 +11,7 @@ export interface SaperlyClientConfig {
 export interface RequestOptions {
   body?: object;
   query?: Record<string, string | number | undefined>;
+  headers?: Record<string, string>;
 }
 
 export class SaperlyClient {
@@ -45,6 +46,20 @@ export class SaperlyClient {
       Authorization: `Bearer ${this.apiKey}`,
       "Content-Type": "application/json",
     };
+
+    if (options?.headers) {
+      for (const [k, v] of Object.entries(options.headers)) {
+        const lower = k.toLowerCase();
+        if (lower === "authorization" || lower === "content-type") continue;
+        // Defense-in-depth: runtime fetch rejects CRLF in header values, but
+        // an SDK consumer composing headers from untrusted input deserves an
+        // early, named error instead of a generic TypeError from undici.
+        if (/[\r\n]/.test(k) || /[\r\n]/.test(v)) {
+          throw new Error(`invalid header: CRLF not allowed (${k})`);
+        }
+        headers[k] = v;
+      }
+    }
 
     const fetchOptions: RequestInit = { method, headers };
 

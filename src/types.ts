@@ -258,3 +258,121 @@ export interface Voice {
   accent: string;
   style: string;
 }
+
+/**
+ * v0.5.6.0 (M4) — discriminator for `AuditEvent.type`. Matches the
+ * server's `audit-types.ts` union exactly. The string value is
+ * pass-through (no case transform) because it has no underscore;
+ * verified by the resource tests.
+ */
+export type AuditEventType =
+  | "call"
+  | "sms"
+  | "compliance_event"
+  | "billing_transaction";
+
+/**
+ * v0.5.6.0 (M4) — one row in the unified agent-audit feed. The server
+ * UNIONs across `calls`, `sms_messages`, `compliance_events`, and
+ * `billing_transactions`, filtered by `api_key_id` (compliance branch
+ * uses `actor_api_key_id`).
+ */
+export interface AuditEvent {
+  type: AuditEventType;
+  id: string;
+  /**
+   * ISO 8601 string. The wire format is `created_at` (snake_case) and
+   * `client.request`'s `toCamelCase` converter renames it to
+   * `createdAt` on the way in.
+   */
+  createdAt: string;
+  /**
+   * Per-type payload. The wire format is snake_case throughout
+   * (`from_number`, `duration_sec`, …) and `toCamelCase` recurses into
+   * the JSONB body, so SDK consumers see `fromNumber`, `durationSec`,
+   * etc. Concrete shape varies by `type`; kept as
+   * `Record<string, unknown>` at the SDK boundary so consumers can
+   * narrow as they need. See M4 v2 for typed per-type payloads.
+   */
+  data: Record<string, unknown>;
+}
+
+/**
+ * v0.5.6.0 (M4) — return shape of `client.audit.list(...)`. The
+ * server's wire format is `{ events, limit, api_key_id }`;
+ * `toCamelCase` renames the top-level `api_key_id` to `apiKeyId`.
+ */
+export interface AuditListResult {
+  events: AuditEvent[];
+  limit: number;
+  apiKeyId: string;
+}
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — agent API key permission tier.
+ * `legacy_full` is a server-only historical value that may appear in
+ * responses for keys minted before the tier rename; the SDK never
+ * accepts it as input on create/update.
+ *
+ * `API_KEY_SETTABLE_PERMISSIONS` is the single source of truth for the
+ * tier-set the server accepts on POST /v1/keys + PATCH /v1/keys/[id].
+ * Mirrors `API_SETTABLE_PERMISSIONS` in `src/lib/api/schemas.ts` and the
+ * SQL CHECK constraint in `src/lib/db/schema.ts` (excluding `legacy_full`).
+ * MCP imports this tuple to derive its Zod enum so the four surfaces
+ * (SDK types, MCP create-tool schema, MCP update-tool schema, server)
+ * cannot drift independently.
+ */
+export const API_KEY_SETTABLE_PERMISSIONS = [
+  "full",
+  "call_only",
+  "sms_only",
+  "read_only",
+] as const;
+
+export type ApiKeySettablePermission = (typeof API_KEY_SETTABLE_PERMISSIONS)[number];
+
+export type ApiKeyPermission = ApiKeySettablePermission | "legacy_full";
+
+export type ApiKeyEnvironment = "test" | "live";
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — agent API key resource. Wire
+ * format is snake_case (`FormattedApiKey` in `src/lib/api/format.ts`);
+ * `SaperlyClient.request` converts it to camelCase on the way in.
+ */
+export interface ApiKey {
+  id: string;
+  keyPrefix: string;
+  environment: ApiKeyEnvironment;
+  name: string;
+  agentLabel: string | null;
+  lineId: string | null;
+  permissions: ApiKeyPermission;
+  monthlyCapCents: number | null;
+  monthlySpendCents: number;
+  createdAt: string;
+  revokedAt: string | null;
+  lastUsedAt: string | null;
+  rotatedFrom: string | null;
+  createdByServiceKeyId: string | null;
+}
+
+/**
+ * Returned by `client.keys.create` and `client.keys.rotate`.
+ *
+ * `plaintextKey` is present on the FIRST 201 response only. If the caller
+ * retries the SAME Idempotency-Key after losing the plaintext (network drop
+ * after the request reached the server, ≤12h window), the replay returns
+ * 201 WITHOUT `plaintextKey` — the customer must restore from their first
+ * response or rotate the key. This matches Stripe's "create new key"
+ * recovery path. See `src/app/api/v1/keys/route.ts:177-207` for the
+ * server-side redaction rationale.
+ */
+export interface CreateApiKeyResponse extends ApiKey {
+  plaintextKey?: string;
+}
+
+export interface ApiKeyListResult {
+  keys: ApiKey[];
+  total: number;
+}

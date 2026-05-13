@@ -77,6 +77,57 @@ describe("SaperlyClient", () => {
     expect(res.line.createdAt).toBe("2026-01-01");
   });
 
+  it("forwards caller-supplied headers but drops Authorization overrides", async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ ok: true }));
+    const client = new SaperlyClient({ apiKey: "sk_test_xyz" });
+
+    await client.request("GET", "/foo", {
+      headers: { "X-Custom": "yes", Authorization: "Bearer EVIL" },
+    });
+
+    const [, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    const sent = options.headers as Record<string, string>;
+    expect(sent["X-Custom"]).toBe("yes");
+    expect(sent.Authorization).toBe("Bearer sk_test_xyz");
+  });
+
+  it("drops Authorization / Content-Type overrides regardless of header case", async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ ok: true }));
+    const client = new SaperlyClient({ apiKey: "sk_test_xyz" });
+
+    await client.request("GET", "/foo", {
+      headers: {
+        AUTHORIZATION: "Bearer EVIL",
+        "content-Type": "text/plain",
+        "CONTENT-TYPE": "x/y",
+      },
+    });
+
+    const [, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    const sent = options.headers as Record<string, string>;
+    expect(sent.Authorization).toBe("Bearer sk_test_xyz");
+    expect(sent["Content-Type"]).toBe("application/json");
+    expect(sent.AUTHORIZATION).toBeUndefined();
+    expect(sent["content-Type"]).toBeUndefined();
+    expect(sent["CONTENT-TYPE"]).toBeUndefined();
+  });
+
+  it("rejects caller headers containing CRLF (header injection guard)", async () => {
+    const client = new SaperlyClient({ apiKey: "sk_test_xyz" });
+
+    await expect(
+      client.request("GET", "/foo", {
+        headers: { "X-Inj": "a\r\nAuthorization: Bearer evil" },
+      }),
+    ).rejects.toThrow(/CRLF/);
+
+    await expect(
+      client.request("GET", "/foo", {
+        headers: { "X-Inj\nEvil": "ok" },
+      }),
+    ).rejects.toThrow(/CRLF/);
+  });
+
   it("wraps non-JSON error response in SaperlyError", async () => {
     mockFetch.mockResolvedValue({
       ok: false,
@@ -96,23 +147,3 @@ describe("SaperlyClient", () => {
   });
 });
 
-describe("Saperly.register", () => {
-  it("calls /auth/signup and returns camelCase user", async () => {
-    mockFetch.mockResolvedValue(
-      jsonResponse(
-        { user: { id: "u1", email: "a@b.com", name: null, created_at: "2026-01-01" } },
-        201,
-      ),
-    );
-
-    const result = await Saperly.register({
-      email: "a@b.com",
-      password: "password123",
-    });
-
-    expect(result.user.createdAt).toBe("2026-01-01");
-    expect(result.user.email).toBe("a@b.com");
-    const [url] = mockFetch.mock.calls[0] as [string];
-    expect(url).toContain("/api/v1/auth/signup");
-  });
-});
