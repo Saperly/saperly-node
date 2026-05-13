@@ -147,23 +147,3 @@ describe("SaperlyClient", () => {
   });
 });
 
-describe("Saperly.register", () => {
-  it("calls /auth/signup and returns camelCase user", async () => {
-    mockFetch.mockResolvedValue(
-      jsonResponse(
-        { user: { id: "u1", email: "a@b.com", name: null, created_at: "2026-01-01" } },
-        201,
-      ),
-    );
-
-    const result = await Saperly.register({
-      email: "a@b.com",
-      password: "password123",
-    });
-
-    expect(result.user.createdAt).toBe("2026-01-01");
-    expect(result.user.email).toBe("a@b.com");
-    const [url] = mockFetch.mock.calls[0] as [string];
-    expect(url).toContain("/api/v1/auth/signup");
-  });
-});

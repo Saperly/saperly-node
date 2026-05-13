@@ -1,6 +1,4 @@
-import { SaperlyClient, DEFAULT_BASE_URL } from "./client.js";
-import { SaperlyError } from "./errors.js";
-import { toCamelCase, toSnakeCase } from "./utils.js";
+import { SaperlyClient } from "./client.js";
 import { LinesResource } from "./resources/lines.js";
 import { CallsResource } from "./resources/calls.js";
 import { ConsentResource } from "./resources/consent.js";
@@ -19,21 +17,6 @@ import { KeysResource } from "./resources/keys.js";
 export interface SaperlyConfig {
   apiKey: string;
   baseUrl?: string;
-}
-
-export interface RegisterParams {
-  email: string;
-  password: string;
-  name?: string;
-}
-
-export interface RegisterResult {
-  user: {
-    id: string;
-    email: string;
-    name: string | null;
-    createdAt: string;
-  };
 }
 
 export class Saperly {
@@ -71,27 +54,6 @@ export class Saperly {
     this.voices = new VoicesResource(client);
     this.audit = new AuditResource(client);
     this.keys = new KeysResource(client);
-  }
-
-  /** Programmatic signup. Creates account + default test API key. */
-  static async register(
-    params: RegisterParams,
-    baseUrl?: string,
-  ): Promise<RegisterResult> {
-    const url = `${baseUrl ?? DEFAULT_BASE_URL}/api/v1/auth/signup`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(toSnakeCase(params as unknown as Record<string, unknown>)),
-    });
-
-    if (!res.ok) {
-      const errorBody = await res.json().catch(() => null);
-      throw SaperlyError.fromResponse(res.status, errorBody);
-    }
-
-    const json: unknown = await res.json();
-    return toCamelCase<RegisterResult>(json);
   }
 }
 

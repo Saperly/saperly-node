@@ -127,6 +127,15 @@ export class CallNotActiveError extends SaperlyError {
   }
 }
 
+/**
+ * Thrown when an API call would push the account's USD balance below zero
+ * with no card on file to auto-charge.
+ *
+ * @deprecated The class + `insufficient_credits` error code are retained
+ * for compatibility with pre-v0.5.3 SDK consumers. Pricing is cents-honest
+ * USD; the "credits" wording is a historical alias. A renamed
+ * `InsufficientBalanceError` is planned for the next breaking SDK release.
+ */
 export class InsufficientCreditsError extends SaperlyError {
   constructor(message: string, status = 402) {
     super("insufficient_credits", status, message);
