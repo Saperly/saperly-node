@@ -57,6 +57,14 @@ export class SaperlyError extends Error {
         return new AgentPermissionDeniedError(message, status, details);
       case "m3_fraud_block":
         return new M3FraudBlockError(message, status);
+      case "idempotency_key_reused":
+        return new IdempotencyKeyReusedError(message, status);
+      case "idempotency_in_progress":
+        return new IdempotencyInProgressError(message, status);
+      case "missing_idempotency_key":
+        return new MissingIdempotencyKeyError(message, status);
+      case "rate_limited":
+        return new RateLimitedError(message, status);
       default:
         return new SaperlyError(code, status, message, details);
     }
@@ -213,5 +221,54 @@ export class M3FraudBlockError extends SaperlyError {
   constructor(message: string, status = 403) {
     super("m3_fraud_block", status, message);
     this.name = "M3FraudBlockError";
+  }
+}
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — the Idempotency-Key was reused
+ * with a different request body within the 24h window. Recovery: use a
+ * NEW Idempotency-Key for the new request body.
+ */
+export class IdempotencyKeyReusedError extends SaperlyError {
+  constructor(message: string, status = 409) {
+    super("idempotency_key_reused", status, message);
+    this.name = "IdempotencyKeyReusedError";
+  }
+}
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — a request with this
+ * Idempotency-Key is still in progress. Retry after the server-supplied
+ * Retry-After window (default 1s).
+ */
+export class IdempotencyInProgressError extends SaperlyError {
+  constructor(message: string, status = 409) {
+    super("idempotency_in_progress", status, message);
+    this.name = "IdempotencyInProgressError";
+  }
+}
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — a POST that requires an
+ * Idempotency-Key header was sent without one. The SDK auto-generates
+ * UUID v4 keys for /v1/keys mints and rotates, so this only surfaces if
+ * a caller bypasses the SDK helpers.
+ */
+export class MissingIdempotencyKeyError extends SaperlyError {
+  constructor(message: string, status = 400) {
+    super("missing_idempotency_key", status, message);
+    this.name = "MissingIdempotencyKeyError";
+  }
+}
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — server rate limit hit. Honor
+ * the Retry-After header in seconds. /v1/keys POST is 60/h per service
+ * key; rotate is 30/h.
+ */
+export class RateLimitedError extends SaperlyError {
+  constructor(message: string, status = 429) {
+    super("rate_limited", status, message);
+    this.name = "RateLimitedError";
   }
 }

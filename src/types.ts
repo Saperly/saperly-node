@@ -307,3 +307,72 @@ export interface AuditListResult {
   limit: number;
   apiKeyId: string;
 }
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — agent API key permission tier.
+ * `legacy_full` is a server-only historical value that may appear in
+ * responses for keys minted before the tier rename; the SDK never
+ * accepts it as input on create/update.
+ *
+ * `API_KEY_SETTABLE_PERMISSIONS` is the single source of truth for the
+ * tier-set the server accepts on POST /v1/keys + PATCH /v1/keys/[id].
+ * Mirrors `API_SETTABLE_PERMISSIONS` in `src/lib/api/schemas.ts` and the
+ * SQL CHECK constraint in `src/lib/db/schema.ts` (excluding `legacy_full`).
+ * MCP imports this tuple to derive its Zod enum so the four surfaces
+ * (SDK types, MCP create-tool schema, MCP update-tool schema, server)
+ * cannot drift independently.
+ */
+export const API_KEY_SETTABLE_PERMISSIONS = [
+  "full",
+  "call_only",
+  "sms_only",
+  "read_only",
+] as const;
+
+export type ApiKeySettablePermission = (typeof API_KEY_SETTABLE_PERMISSIONS)[number];
+
+export type ApiKeyPermission = ApiKeySettablePermission | "legacy_full";
+
+export type ApiKeyEnvironment = "test" | "live";
+
+/**
+ * v0.5.7.0 (Phase Maturity 2 / Team 2) — agent API key resource. Wire
+ * format is snake_case (`FormattedApiKey` in `src/lib/api/format.ts`);
+ * `SaperlyClient.request` converts it to camelCase on the way in.
+ */
+export interface ApiKey {
+  id: string;
+  keyPrefix: string;
+  environment: ApiKeyEnvironment;
+  name: string;
+  agentLabel: string | null;
+  lineId: string | null;
+  permissions: ApiKeyPermission;
+  monthlyCapCents: number | null;
+  monthlySpendCents: number;
+  createdAt: string;
+  revokedAt: string | null;
+  lastUsedAt: string | null;
+  rotatedFrom: string | null;
+  createdByServiceKeyId: string | null;
+}
+
+/**
+ * Returned by `client.keys.create` and `client.keys.rotate`.
+ *
+ * `plaintextKey` is present on the FIRST 201 response only. If the caller
+ * retries the SAME Idempotency-Key after losing the plaintext (network drop
+ * after the request reached the server, ≤12h window), the replay returns
+ * 201 WITHOUT `plaintextKey` — the customer must restore from their first
+ * response or rotate the key. This matches Stripe's "create new key"
+ * recovery path. See `src/app/api/v1/keys/route.ts:177-207` for the
+ * server-side redaction rationale.
+ */
+export interface CreateApiKeyResponse extends ApiKey {
+  plaintextKey?: string;
+}
+
+export interface ApiKeyListResult {
+  keys: ApiKey[];
+  total: number;
+}
