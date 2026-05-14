@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sign } from "@saperly/webhook-sig";
+import { sign } from "../_internal/webhook-sig.js";
 import { verifyWebhook } from "../webhooks-verify.js";
 
 const SECRET = "test-secret-shhh";

@@ -24,9 +24,6 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@saperly/webhook-sig": "*"
-  },
   "devDependencies": {
     "typescript": "^5",
     "vitest": "^4.1.1"

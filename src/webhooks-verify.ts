@@ -24,8 +24,8 @@
  * ```
  */
 
-import { verify as verifySignature } from "@saperly/webhook-sig";
-import type { VerifyOptions, VerifyResult } from "@saperly/webhook-sig";
+import { verify as verifySignature } from "./_internal/webhook-sig.js";
+import type { VerifyOptions, VerifyResult } from "./_internal/webhook-sig.js";
 
 export type WebhookHeaders = Record<string, string | string[] | undefined>;
 
@@ -38,4 +38,4 @@ export function verifyWebhook(
   return verifySignature(rawBody, secret, headers, options);
 }
 
-export type { VerifyOptions, VerifyResult } from "@saperly/webhook-sig";
+export type { VerifyOptions, VerifyResult } from "./_internal/webhook-sig.js";

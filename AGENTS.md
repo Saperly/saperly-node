@@ -18,7 +18,7 @@ import { Saperly } from "@saperly/sdk";
 const saperly = new Saperly({ apiKey: process.env.SAPERLY_API_KEY! });
 ```
 
-Requires Node.js 18+ (uses global `fetch`). The SDK has zero direct runtime dependencies aside from the small `@saperly/webhook-sig` helper.
+Requires Node.js 18+ (uses global `fetch`). The SDK has zero runtime dependencies; the webhook signing helper is inlined.
 
 ## 3. Authentication
 
@@ -94,7 +94,7 @@ const svc = new Saperly({ apiKey: process.env.SAPERLY_SERVICE_KEY! });
 
 const child = await svc.keys.create({
   name: "voice-agent-prod",
-  lineId: "line_xyz",
+  lineId: "550e8400-e29b-41d4-a716-446655440000",
   permissions: "call_only",
   monthlyCapCents: 500,
 });
