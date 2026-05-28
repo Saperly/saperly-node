@@ -4,8 +4,21 @@ import { toCamelCase, toSnakeCase } from "./utils.js";
 export const DEFAULT_BASE_URL = "https://saperly-production.up.railway.app";
 
 export interface SaperlyClientConfig {
-  apiKey: string;
+  /**
+   * Plaintext API key for `Authorization: Bearer …` auth. Optional ONLY
+   * when `defaultHeaders` supplies an alternate credential (e.g. the
+   * internal-proxy headers minted by the hosted MCP dispatcher). Omitting
+   * both — or passing empty strings — leaves the SDK unauthenticated and
+   * the API will reject every call with 401.
+   */
+  apiKey?: string;
   baseUrl?: string;
+  /**
+   * Headers attached to every outgoing request, BEFORE the SDK's own
+   * `Authorization` + `Content-Type` defaults. Used for proxy-auth flows
+   * where the credential travels in a non-standard header.
+   */
+  defaultHeaders?: Record<string, string>;
 }
 
 export interface RequestOptions {
@@ -17,13 +30,12 @@ export interface RequestOptions {
 export class SaperlyClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;
+  private readonly defaultHeaders: Record<string, string>;
 
   constructor(config: SaperlyClientConfig) {
-    if (!config.apiKey) {
-      throw new Error("apiKey is required");
-    }
-    this.apiKey = config.apiKey;
+    this.apiKey = config.apiKey ?? "";
     this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
+    this.defaultHeaders = config.defaultHeaders ?? {};
   }
 
   private static readonly RETRYABLE_METHODS = new Set(["GET", "DELETE", "HEAD", "OPTIONS"]);
@@ -42,10 +54,15 @@ export class SaperlyClient {
       if (qs) url += `?${qs}`;
     }
 
+    // defaultHeaders go FIRST so per-request `options.headers` and the
+    // SDK's own auth/content-type pins win on conflict.
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${this.apiKey}`,
+      ...this.defaultHeaders,
       "Content-Type": "application/json",
     };
+    if (this.apiKey) {
+      headers.Authorization = `Bearer ${this.apiKey}`;
+    }
 
     if (options?.headers) {
       for (const [k, v] of Object.entries(options.headers)) {

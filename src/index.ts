@@ -15,8 +15,19 @@ import { AuditResource } from "./resources/audit.js";
 import { KeysResource } from "./resources/keys.js";
 
 export interface SaperlyConfig {
-  apiKey: string;
+  /**
+   * Plaintext API key for `Authorization: Bearer …`. Optional ONLY when
+   * `defaultHeaders` supplies an alternate credential (proxy-auth flows).
+   */
+  apiKey?: string;
   baseUrl?: string;
+  /**
+   * Headers attached to every outgoing request, before the SDK's own
+   * `Authorization` + `Content-Type` defaults. Used by proxy-auth flows
+   * (hosted MCP dispatcher → REST API) where the credential travels in
+   * a non-standard header pair.
+   */
+  defaultHeaders?: Record<string, string>;
 }
 
 export class Saperly {
@@ -36,8 +47,12 @@ export class Saperly {
   readonly keys: KeysResource;
 
   constructor(config: SaperlyConfig) {
-    if (!config.apiKey) {
-      throw new Error("apiKey is required");
+    // Caller must supply SOME credential — either `apiKey` (bearer) or
+    // `defaultHeaders` (proxy auth, e.g. the hosted MCP dispatcher). The
+    // underlying SaperlyClient skips the Authorization header when apiKey
+    // is empty, so the API rejects the call rather than the constructor.
+    if (!config.apiKey && !config.defaultHeaders) {
+      throw new Error("apiKey or defaultHeaders is required");
     }
     const client = new SaperlyClient(config);
     this.lines = new LinesResource(client);
