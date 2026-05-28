@@ -11,6 +11,18 @@ export interface Line {
   beginMessage: string | null;
   voice: string | null;
   contextLimit: number | null;
+  /**
+   * v0.5.10 — Deepgram STT language pin. 'multi' (default) lets Deepgram
+   * auto-detect per fragment. Set to a specific code (e.g. 'he', 'es') to pin
+   * the language for this line and dramatically improve accuracy on
+   * non-English callers. Hosted-mode lines must keep 'multi'.
+   */
+  language: string;
+  /**
+   * v0.5.10 — Deepgram endpointing override in ms. null = platform default
+   * (~700ms). Range 100-2000. Advanced; most customers should leave null.
+   */
+  endpointingMs: number | null;
   recordingEnabled: boolean;
   complianceEnabled: boolean;
   status: "provisioning" | "active" | "suspended" | "released";

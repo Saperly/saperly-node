@@ -32,6 +32,10 @@ export interface CreateLineParams {
   beginMessage?: string;
   voice?: string;
   contextLimit?: number;
+  /** v0.5.10 — STT language pin. Defaults to 'multi'. Hosted mode must use 'multi'. */
+  language?: string;
+  /** v0.5.10 — Deepgram endpointing override (ms, 100-2000). Advanced. */
+  endpointingMs?: number | null;
   recordingEnabled?: boolean;
   complianceEnabled?: boolean;
 }
@@ -46,6 +50,10 @@ export interface UpdateLineParams {
   beginMessage?: string | null;
   voice?: string | null;
   contextLimit?: number | null;
+  /** v0.5.10 — STT language pin. Defaults to 'multi'. Hosted mode must use 'multi'. */
+  language?: string;
+  /** v0.5.10 — Deepgram endpointing override (ms, 100-2000). Advanced. */
+  endpointingMs?: number | null;
   recordingEnabled?: boolean;
   complianceEnabled?: boolean;
 }

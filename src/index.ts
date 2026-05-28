@@ -74,3 +74,9 @@ export type { DailyUsageParams, MonthlyUsageParams } from "./resources/usage.js"
 export type { UpdateSettingsParams } from "./resources/settings.js";
 export type { ListAuditParams } from "./resources/audit.js";
 export type { CreateKeyParams, ListKeysParams, UpdateKeyParams } from "./resources/keys.js";
+export {
+  SUPPORTED_LANGUAGES,
+  LANGUAGE_LABELS,
+  isSupportedLanguage,
+  type SupportedLanguage,
+} from "./languages.js";
