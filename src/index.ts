@@ -62,7 +62,7 @@ export * from "./errors.js";
 export { verifyWebhook } from "./webhooks-verify.js";
 export type { WebhookHeaders, VerifyOptions, VerifyResult } from "./webhooks-verify.js";
 export type { CreateLineParams, UpdateLineParams } from "./resources/lines.js";
-export type { CreateCallParams, ListCallsParams, ConversationCallParams } from "./resources/calls.js";
+export type { CreateCallParams, ListCallsParams, ConversationCallParams, SpeakCallParams, WaitCallResponseParams, PressCallNumbersParams } from "./resources/calls.js";
 export type { GrantConsentParams, CheckConsentParams, RevokeConsentParams } from "./resources/consent.js";
 export type { AuditParams } from "./resources/compliance.js";
 export type { CreateDisclosureParams } from "./resources/disclosures.js";
