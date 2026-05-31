@@ -23,8 +23,8 @@ describe("VoicesResource", () => {
     mockFetch.mockResolvedValue(
       jsonResponse({
         voices: [
-          { id: "voice-1", name: "Alloy", gender: "female", accent: "American", style: "conversational" },
-          { id: "voice-2", name: "Echo", gender: "male", accent: "American", style: "professional" },
+          { slug: "aria", name: "Aria", gender: "female", accent: "American", description: "Calm and conversational", languages: ["multi"] },
+          { slug: "hebrew-warm", name: "Tamar", gender: "female", accent: "Israeli", description: "Warm and natural Hebrew", languages: ["he"] },
         ],
       }),
     );
@@ -32,13 +32,15 @@ describe("VoicesResource", () => {
     const result = await client.voices.list();
 
     expect(result.voices).toHaveLength(2);
-    expect(result.voices[0].id).toBe("voice-1");
-    expect(result.voices[0].name).toBe("Alloy");
+    expect(result.voices[0].slug).toBe("aria");
+    expect(result.voices[0].name).toBe("Aria");
     expect(result.voices[0].gender).toBe("female");
     expect(result.voices[0].accent).toBe("American");
-    expect(result.voices[0].style).toBe("conversational");
-    expect(result.voices[1].id).toBe("voice-2");
-    expect(result.voices[1].name).toBe("Echo");
+    expect(result.voices[0].description).toBe("Calm and conversational");
+    expect(result.voices[0].languages).toEqual(["multi"]);
+    expect(result.voices[1].slug).toBe("hebrew-warm");
+    expect(result.voices[1].name).toBe("Tamar");
+    expect(result.voices[1].languages).toEqual(["he"]);
   });
 
   it("list calls correct endpoint", async () => {

@@ -264,11 +264,14 @@ export interface Settings {
 }
 
 export interface Voice {
-  id: string;
+  /** Saperly voice slug — pass this as `Line.voice` (e.g. "aria", "hebrew-warm"). */
+  slug: string;
   name: string;
   gender: string;
   accent: string;
-  style: string;
+  description: string;
+  /** language codes this voice is intended for; "multi" = multilingual. */
+  languages: string[];
 }
 
 /**

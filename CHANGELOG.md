@@ -2,6 +2,22 @@
 
 All notable changes to the TypeScript SDK. Versions follow the platform release cadence.
 
+## [0.6.0] (2026-05-31) Saperly voice catalog (breaking)
+
+### Changed (breaking)
+
+- `Voice` is now `{ slug, name, gender, accent, description, languages }`. The
+  previous `id` field is renamed to `slug` (a Saperly voice slug — set it as
+  `Line.voice`), `style` is renamed to `description`, and `languages: string[]`
+  is added. Vendor voice ids are no longer exposed by the API or SDK. Update any
+  code reading `voice.id`/`voice.style` to `voice.slug`/`voice.description`.
+
+### Notes
+
+- `Line.voice` is unchanged in type (`string | null`) but now carries a Saperly
+  slug rather than a raw vendor voice id. Use `client.voices.list()` to discover
+  valid slugs.
+
 ## [0.4.0] (2026-05-13) agent-native key management
 
 ### Added
