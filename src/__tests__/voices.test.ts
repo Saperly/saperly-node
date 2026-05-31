@@ -24,7 +24,7 @@ describe("VoicesResource", () => {
       jsonResponse({
         voices: [
           { slug: "aria", name: "Aria", gender: "female", accent: "American", description: "Calm and conversational", languages: ["multi"] },
-          { slug: "hebrew-warm", name: "Tamar", gender: "female", accent: "Israeli", description: "Warm and natural Hebrew", languages: ["he"] },
+          { slug: "hebrew-warm", name: "Eitan", gender: "male", accent: "Israeli", description: "Warm, natural male Hebrew", languages: ["he"] },
         ],
       }),
     );
@@ -39,7 +39,7 @@ describe("VoicesResource", () => {
     expect(result.voices[0].description).toBe("Calm and conversational");
     expect(result.voices[0].languages).toEqual(["multi"]);
     expect(result.voices[1].slug).toBe("hebrew-warm");
-    expect(result.voices[1].name).toBe("Tamar");
+    expect(result.voices[1].name).toBe("Eitan");
     expect(result.voices[1].languages).toEqual(["he"]);
   });
 
