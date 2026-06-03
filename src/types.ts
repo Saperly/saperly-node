@@ -47,6 +47,30 @@ export interface Call {
   createdAt: string;
 }
 
+export interface CallSpeakResult {
+  callId: string;
+  spoke: boolean;
+  interrupted: boolean;
+  partialResponseText: string | null;
+  interruptionReason: string | null;
+  timedOut: boolean;
+  responseText: string | null;
+  responseTimestamp: number | null;
+}
+
+export interface CallWaitResult {
+  callId: string;
+  timedOut: boolean;
+  responseText: string | null;
+  responseTimestamp: number | null;
+}
+
+export interface CallPressResult {
+  callId: string;
+  pressed: boolean;
+  digits: string;
+}
+
 export interface ConsentRecord {
   id: string;
   phoneNumber: string;

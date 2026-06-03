@@ -1,5 +1,5 @@
 import type { SaperlyClient } from "../client.js";
-import type { Call } from "../types.js";
+import type { Call, CallPressResult, CallSpeakResult, CallWaitResult } from "../types.js";
 
 export interface CreateCallParams {
   lineId: string;
@@ -19,6 +19,20 @@ export interface ConversationCallParams {
   topic: string;
   beginMessage?: string;
   maxDurationSeconds?: number;
+}
+
+export interface SpeakCallParams {
+  text: string;
+  waitForResponse?: boolean;
+  timeoutSeconds?: number;
+}
+
+export interface WaitCallResponseParams {
+  timeoutSeconds?: number;
+}
+
+export interface PressCallNumbersParams {
+  digits: string;
 }
 
 export class CallsResource {
@@ -57,5 +71,35 @@ export class CallsResource {
       body: params,
     });
     return res.call;
+  }
+
+  async speak(callId: string, params: SpeakCallParams): Promise<CallSpeakResult> {
+    return this.client.request<CallSpeakResult>(
+      "POST",
+      `/calls/${encodeURIComponent(callId)}/speak`,
+      { body: params },
+    );
+  }
+
+  async waitForResponse(
+    callId: string,
+    params: WaitCallResponseParams = {},
+  ): Promise<CallWaitResult> {
+    return this.client.request<CallWaitResult>(
+      "POST",
+      `/calls/${encodeURIComponent(callId)}/wait`,
+      { body: params },
+    );
+  }
+
+  async pressNumbers(
+    callId: string,
+    params: PressCallNumbersParams,
+  ): Promise<CallPressResult> {
+    return this.client.request<CallPressResult>(
+      "POST",
+      `/calls/${encodeURIComponent(callId)}/press`,
+      { body: params },
+    );
   }
 }

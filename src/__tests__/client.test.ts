@@ -45,8 +45,24 @@ describe("SaperlyClient", () => {
     expect(url).toBe("http://localhost:3000/api/v1/lines");
   });
 
-  it("throws immediately if apiKey is missing", () => {
-    expect(() => new SaperlyClient({ apiKey: "" })).toThrow("apiKey is required");
+  it("omits Authorization when apiKey is empty (proxy-auth flow)", async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ data: { ok: true } }),
+    } as unknown as Response);
+
+    const client = new SaperlyClient({
+      apiKey: "",
+      baseUrl: "http://localhost:3000",
+      defaultHeaders: { "X-Internal-Secret": "shh" },
+    });
+    await client.request("GET", "/lines");
+
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
+    expect(headers["X-Internal-Secret"]).toBe("shh");
   });
 
   it("returns undefined for 204 responses", async () => {

@@ -151,4 +151,84 @@ describe("CallsResource", () => {
     expect(body.max_duration_seconds).toBe(300);
     expect(body.lineId).toBeUndefined();
   });
+
+  it("speak sends text control body and returns interruption metadata", async () => {
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        call_id: "call-1",
+        spoke: true,
+        interrupted: true,
+        partial_response_text: "Hello",
+        interruption_reason: "caller_interrupted_control",
+        timed_out: false,
+        response_text: "I need help.",
+        response_timestamp: 1770000000000,
+      }),
+    );
+
+    const result = await client.calls.speak("call-1", {
+      text: "Hello, how can I help?",
+      waitForResponse: true,
+      timeoutSeconds: 20,
+    });
+
+    expect(result.interrupted).toBe(true);
+    expect(result.partialResponseText).toBe("Hello");
+    expect(result.responseText).toBe("I need help.");
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/calls/call-1/speak");
+    expect(options.method).toBe("POST");
+    const body = JSON.parse(options.body as string);
+    expect(body.text).toBe("Hello, how can I help?");
+    expect(body.wait_for_response).toBe(true);
+    expect(body.timeout_seconds).toBe(20);
+  });
+
+  it("waitForResponse sends timeout body and returns transcript", async () => {
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        call_id: "call-1",
+        timed_out: false,
+        response_text: "Yes.",
+        response_timestamp: 1770000000000,
+      }),
+    );
+
+    const result = await client.calls.waitForResponse("call-1", {
+      timeoutSeconds: 15,
+    });
+
+    expect(result.timedOut).toBe(false);
+    expect(result.responseText).toBe("Yes.");
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/calls/call-1/wait");
+    expect(options.method).toBe("POST");
+    const body = JSON.parse(options.body as string);
+    expect(body.timeout_seconds).toBe(15);
+  });
+
+  it("pressNumbers sends digits body and returns pressed metadata", async () => {
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        call_id: "call-1",
+        pressed: true,
+        digits: "12#",
+      }),
+    );
+
+    const result = await client.calls.pressNumbers("call-1", {
+      digits: "12#",
+    });
+
+    expect(result.pressed).toBe(true);
+    expect(result.digits).toBe("12#");
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/calls/call-1/press");
+    expect(options.method).toBe("POST");
+    const body = JSON.parse(options.body as string);
+    expect(body.digits).toBe("12#");
+  });
 });
